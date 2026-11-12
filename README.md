@@ -1,5 +1,8 @@
 # Environnement de recette simulé : migration Siebel → CRM cible
 
+> **Projet personnel de démonstration.** Tout est simulé (aucun vrai Siebel ni Salesforce) et toutes les données sont fictives.
+> Le code et les cas de tests ont été générés avec l'aide de Claude Code, l'assistant IA d'Anthropic, puis exécutés et vérifiés par mes soins.
+
 Cet environnement tourne sur votre poste avec Docker. Il simule la chaîne complète d'une migration
 de CRM pour pouvoir **exécuter réellement** les cas de tests (reprise SQL, API Postman, événements Kafka,
 flux vers l'ERP).
