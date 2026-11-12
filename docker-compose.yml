@@ -1,0 +1,97 @@
+# Environnement de recette simulé : migration Siebel -> CRM cible
+# Démarrage : docker compose up -d --build
+name: recette-migration
+
+x-app-env: &app-env
+  ORACLE_DSN: oracle:1521/FREEPDB1
+  ORACLE_USER: RECETTE
+  ORACLE_PASSWORD: recette
+  KAFKA_BOOTSTRAP: kafka:9092
+  CRM_URL: http://crm-api:8000
+
+services:
+  oracle:
+    image: gvenzl/oracle-free:23-slim-faststart
+    environment:
+      ORACLE_PASSWORD: oracle
+    ports: ["1521:1521"]
+    volumes:
+      - ./oracle/init:/container-entrypoint-initdb.d:ro
+      - oracle-data:/opt/oracle/oradata
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  kafka:
+    image: apache/kafka:3.9.0
+    ports: ["29092:29092"]
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_NUM_PARTITIONS: 3
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null 2>&1"]
+      interval: 10s
+      timeout: 10s
+      retries: 20
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:v0.7.2
+    ports: ["8183:8080"]
+    environment:
+      KAFKA_CLUSTERS_0_NAME: recette
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+    depends_on:
+      kafka: {condition: service_healthy}
+
+  # Crée les tables et charge les données Siebel de test (une seule fois)
+  db-init:
+    build: ./app
+    command: ["python", "etl.py", "init"]
+    environment: *app-env
+    depends_on:
+      oracle: {condition: service_healthy}
+
+  # API du CRM cible (simule Salesforce + la façade REST) - Swagger : http://localhost:8181/docs
+  crm-api:
+    build: ./app
+    command: ["uvicorn", "crm_api:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment: *app-env
+    ports: ["8181:8000"]
+    depends_on:
+      db-init: {condition: service_completed_successfully}
+      kafka: {condition: service_healthy}
+
+  # Faux ERP : consomme les événements Kafka - Swagger : http://localhost:8182/docs
+  erp-mock:
+    build: ./app
+    command: ["uvicorn", "erp_mock:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment: *app-env
+    ports: ["8182:8000"]
+    depends_on:
+      db-init: {condition: service_completed_successfully}
+      kafka: {condition: service_healthy}
+
+  # Traitement de reprise, lancé à la demande : docker compose run --rm etl full
+  etl:
+    build: ./app
+    entrypoint: ["python", "etl.py"]
+    environment: *app-env
+    profiles: ["outils"]
+    depends_on:
+      oracle: {condition: service_healthy}
+
+volumes:
+  oracle-data:

@@ -1,0 +1,725 @@
+﻿"TCID";"Summary";"Description";"Test Type";"Priority";"Labels";"Requirement";"Step";"Action";"Data";"Expected Result"
+"MIG-001";"[MIG-001] Reprise comptes - Contrôle de volumétrie source / cible";"Référence : MIG-001
+User Story : US-01
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench).";"Manual";"High";"Migration Nominal";"US-01";"1";"Compter les comptes éligibles dans Siebel";"SELECT COUNT(*) FROM SIEBEL.S_ORG_EXT WHERE CUST_STAT_CD <> 'Inactive'";"Le nombre N_source est obtenu et noté"
+"MIG-001";"[MIG-001] Reprise comptes - Contrôle de volumétrie source / cible";"Référence : MIG-001
+User Story : US-01
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench).";"Manual";"High";"Migration Nominal";"US-01";"2";"Compter les comptes migrés dans Salesforce";"SELECT COUNT() FROM Account WHERE Siebel_Id__c != null";"Le nombre N_cible est obtenu et noté"
+"MIG-001";"[MIG-001] Reprise comptes - Contrôle de volumétrie source / cible";"Référence : MIG-001
+User Story : US-01
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench).";"Manual";"High";"Migration Nominal";"US-01";"3";"Compter les comptes rejetés par l'ETL";"SELECT COUNT(*) FROM STG_REJECT WHERE OBJECT_NAME = 'ACCOUNT'";"Le nombre N_rejets est obtenu et noté"
+"MIG-001";"[MIG-001] Reprise comptes - Contrôle de volumétrie source / cible";"Référence : MIG-001
+User Story : US-01
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench).";"Manual";"High";"Migration Nominal";"US-01";"4";"Vérifier l'équation de réconciliation";"N_source = N_cible + N_rejets";"L'écart est égal à 0"
+"MIG-001";"[MIG-001] Reprise comptes - Contrôle de volumétrie source / cible";"Référence : MIG-001
+User Story : US-01
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench).";"Manual";"High";"Migration Nominal";"US-01";"5";"En cas d'écart, lister les comptes ni chargés ni rejetés";"Requête NOT EXISTS entre S_ORG_EXT, STG_ACCOUNT_LOADED et STG_REJECT";"La requête retourne 0 ligne"
+"MIG-002";"[MIG-002] Reprise comptes - Intégrité champ à champ sur échantillon";"Référence : MIG-002
+User Story : US-01
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Spécification de mapping validée disponible.";"Manual";"High";"Migration Nominal";"US-01";"1";"Extraire un échantillon de 200 comptes Siebel couvrant tous les segments";"ROW_ID, NAME, SIRET, adresse principale, CUST_STAT_CD, segment";"Fichier d'échantillon source produit"
+"MIG-002";"[MIG-002] Reprise comptes - Intégrité champ à champ sur échantillon";"Référence : MIG-002
+User Story : US-01
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Spécification de mapping validée disponible.";"Manual";"High";"Migration Nominal";"US-01";"2";"Extraire les mêmes comptes dans Salesforce";"SELECT Siebel_Id__c, Name, SIRET__c, BillingStreet, BillingCity, BillingPostalCode, Status__c, Segment__c FROM Account WHERE Siebel_Id__c IN (:échantillon)";"Les 200 comptes sont retrouvés en cible"
+"MIG-002";"[MIG-002] Reprise comptes - Intégrité champ à champ sur échantillon";"Référence : MIG-002
+User Story : US-01
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Spécification de mapping validée disponible.";"Manual";"High";"Migration Nominal";"US-01";"3";"Comparer les deux extractions champ par champ en appliquant les règles de mapping";"Spécification de mapping, comparaison par Siebel_Id__c";"100 % des champs sont conformes aux règles de mapping"
+"MIG-002";"[MIG-002] Reprise comptes - Intégrité champ à champ sur échantillon";"Référence : MIG-002
+User Story : US-01
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Spécification de mapping validée disponible.";"Manual";"High";"Migration Nominal";"US-01";"4";"Ouvrir 5 comptes de l'échantillon dans l'IHM Salesforce";"5 comptes tirés au hasard";"Les valeurs affichées sont identiques à celles de l'extraction"
+"MIG-003";"[MIG-003] Reprise comptes - Transcodification des listes de valeurs";"Référence : MIG-003
+User Story : US-01
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Table de correspondance des listes de valeurs validée.";"Manual";"High";"Migration Nominal";"US-01";"1";"Lister les valeurs distinctes de statut dans Siebel";"SELECT CUST_STAT_CD, COUNT(*) FROM SIEBEL.S_ORG_EXT GROUP BY CUST_STAT_CD";"Liste des valeurs source et de leurs volumes obtenue"
+"MIG-003";"[MIG-003] Reprise comptes - Transcodification des listes de valeurs";"Référence : MIG-003
+User Story : US-01
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Table de correspondance des listes de valeurs validée.";"Manual";"High";"Migration Nominal";"US-01";"2";"Lister les valeurs distinctes de statut dans Salesforce";"SELECT Status__c, COUNT(Id) FROM Account WHERE Siebel_Id__c != null GROUP BY Status__c";"Liste des valeurs cible et de leurs volumes obtenue"
+"MIG-003";"[MIG-003] Reprise comptes - Transcodification des listes de valeurs";"Référence : MIG-003
+User Story : US-01
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Table de correspondance des listes de valeurs validée.";"Manual";"High";"Migration Nominal";"US-01";"3";"Rapprocher les deux listes avec la table de correspondance";"Table de correspondance des statuts";"Chaque valeur source a sa valeur cible, les volumes par valeur sont identiques"
+"MIG-003";"[MIG-003] Reprise comptes - Transcodification des listes de valeurs";"Référence : MIG-003
+User Story : US-01
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Table de correspondance des listes de valeurs validée.";"Manual";"High";"Migration Nominal";"US-01";"4";"Rechercher les comptes dont le statut est vide ou hors picklist";"SELECT COUNT() FROM Account WHERE Siebel_Id__c != null AND Status__c = null";"0 compte retourné"
+"MIG-004";"[MIG-004] Reprise comptes - Exclusion des comptes inactifs hors périmètre";"Référence : MIG-004
+User Story : US-01
+Nature : Alternatif
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Règle d'exclusion : compte inactif sans activité depuis plus de 5 ans.";"Manual";"Medium";"Migration Alternatif";"US-01";"1";"Identifier dans Siebel un compte répondant à la règle d'exclusion";"CUST_STAT_CD = 'Inactive' AND LAST_UPD < ADD_MONTHS(SYSDATE, -60)";"Un ROW_ID de compte exclu est identifié"
+"MIG-004";"[MIG-004] Reprise comptes - Exclusion des comptes inactifs hors périmètre";"Référence : MIG-004
+User Story : US-01
+Nature : Alternatif
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Règle d'exclusion : compte inactif sans activité depuis plus de 5 ans.";"Manual";"Medium";"Migration Alternatif";"US-01";"2";"Rechercher ce compte dans Salesforce";"SELECT Id FROM Account WHERE Siebel_Id__c = ':ROW_ID'";"Aucun enregistrement retourné"
+"MIG-004";"[MIG-004] Reprise comptes - Exclusion des comptes inactifs hors périmètre";"Référence : MIG-004
+User Story : US-01
+Nature : Alternatif
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Règle d'exclusion : compte inactif sans activité depuis plus de 5 ans.";"Manual";"Medium";"Migration Alternatif";"US-01";"3";"Rechercher ce compte dans le rapport d'exclusion";"Rapport d'exclusion de la reprise, ROW_ID du compte";"Le compte est présent avec le motif 'Inactif > 5 ans'"
+"MIG-004";"[MIG-004] Reprise comptes - Exclusion des comptes inactifs hors périmètre";"Référence : MIG-004
+User Story : US-01
+Nature : Alternatif
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Règle d'exclusion : compte inactif sans activité depuis plus de 5 ans.";"Manual";"Medium";"Migration Alternatif";"US-01";"4";"Vérifier que le compte n'apparaît pas dans les rejets";"SELECT * FROM STG_REJECT WHERE SIEBEL_ID = ':ROW_ID'";"0 ligne : une exclusion n'est pas un rejet"
+"MIG-005";"[MIG-005] Reprise comptes - Rejet d'un compte sans champ obligatoire";"Référence : MIG-005
+User Story : US-01
+Nature : Erreur
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Droit d'insertion dans la table de staging de recette.";"Manual";"High";"Migration Erreur";"US-01";"1";"Insérer dans le staging un compte sans nom";"INSERT INTO STG_ACCOUNT (SIEBEL_ID, NAME, SIRET) VALUES ('TEST-ERR-001', NULL, '12345678900011')";"La ligne est insérée dans le staging"
+"MIG-005";"[MIG-005] Reprise comptes - Rejet d'un compte sans champ obligatoire";"Référence : MIG-005
+User Story : US-01
+Nature : Erreur
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Droit d'insertion dans la table de staging de recette.";"Manual";"High";"Migration Erreur";"US-01";"2";"Lancer le lot de reprise des comptes";"Lot contenant TEST-ERR-001 et 10 comptes valides";"Le lot se termine sans interruption"
+"MIG-005";"[MIG-005] Reprise comptes - Rejet d'un compte sans champ obligatoire";"Référence : MIG-005
+User Story : US-01
+Nature : Erreur
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Droit d'insertion dans la table de staging de recette.";"Manual";"High";"Migration Erreur";"US-01";"3";"Vérifier le rejet";"SELECT ERROR_CODE, ERROR_MSG FROM STG_REJECT WHERE SIEBEL_ID = 'TEST-ERR-001'";"1 ligne avec un code et un motif explicite (nom obligatoire manquant)"
+"MIG-005";"[MIG-005] Reprise comptes - Rejet d'un compte sans champ obligatoire";"Référence : MIG-005
+User Story : US-01
+Nature : Erreur
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Droit d'insertion dans la table de staging de recette.";"Manual";"High";"Migration Erreur";"US-01";"4";"Vérifier l'absence du compte en cible";"SELECT Id FROM Account WHERE Siebel_Id__c = 'TEST-ERR-001'";"Aucun enregistrement retourné"
+"MIG-005";"[MIG-005] Reprise comptes - Rejet d'un compte sans champ obligatoire";"Référence : MIG-005
+User Story : US-01
+Nature : Erreur
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Droit d'insertion dans la table de staging de recette.";"Manual";"High";"Migration Erreur";"US-01";"5";"Vérifier le chargement des 10 comptes valides du lot";"SOQL sur les 10 Siebel_Id__c";"Les 10 comptes sont créés"
+"MIG-006";"[MIG-006] Reprise comptes - Gestion des doublons de SIRET";"Référence : MIG-006
+User Story : US-01
+Nature : Erreur
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Règle de dédoublonnage spécifiée (fusion ou rejet).";"Manual";"High";"Migration Erreur";"US-01";"1";"Préparer deux comptes source portant le même SIRET";"TEST-DBL-001 et TEST-DBL-002, SIRET 98765432100022";"Les deux lignes sont présentes dans le staging"
+"MIG-006";"[MIG-006] Reprise comptes - Gestion des doublons de SIRET";"Référence : MIG-006
+User Story : US-01
+Nature : Erreur
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Règle de dédoublonnage spécifiée (fusion ou rejet).";"Manual";"High";"Migration Erreur";"US-01";"2";"Lancer le lot de reprise";"Lot contenant les deux comptes";"Le lot se termine sans interruption"
+"MIG-006";"[MIG-006] Reprise comptes - Gestion des doublons de SIRET";"Référence : MIG-006
+User Story : US-01
+Nature : Erreur
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Règle de dédoublonnage spécifiée (fusion ou rejet).";"Manual";"High";"Migration Erreur";"US-01";"3";"Compter les comptes portant ce SIRET dans Salesforce";"SELECT COUNT() FROM Account WHERE SIRET__c = '98765432100022'";"1 seul compte en cible"
+"MIG-006";"[MIG-006] Reprise comptes - Gestion des doublons de SIRET";"Référence : MIG-006
+User Story : US-01
+Nature : Erreur
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Règle de dédoublonnage spécifiée (fusion ou rejet).";"Manual";"High";"Migration Erreur";"US-01";"4";"Vérifier l'application de la règle de dédoublonnage";"STG_REJECT ou journal de fusion";"Le second compte est fusionné ou rejeté conformément à la spécification, avec trace"
+"MIG-007";"[MIG-007] Reprise contacts - Rattachement au compte parent";"Référence : MIG-007
+User Story : US-02
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Reprise des comptes validée.";"Manual";"High";"Migration Nominal";"US-02";"1";"Extraire les couples contact / compte dans Siebel";"SELECT ROW_ID, PR_DEPT_OU_ID FROM SIEBEL.S_CONTACT (échantillon de 200)";"Liste source des rattachements obtenue"
+"MIG-007";"[MIG-007] Reprise contacts - Rattachement au compte parent";"Référence : MIG-007
+User Story : US-02
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Reprise des comptes validée.";"Manual";"High";"Migration Nominal";"US-02";"2";"Extraire les mêmes couples dans Salesforce";"SELECT Siebel_Id__c, Account.Siebel_Id__c FROM Contact WHERE Siebel_Id__c IN (:échantillon)";"Liste cible des rattachements obtenue"
+"MIG-007";"[MIG-007] Reprise contacts - Rattachement au compte parent";"Référence : MIG-007
+User Story : US-02
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Reprise des comptes validée.";"Manual";"High";"Migration Nominal";"US-02";"3";"Comparer les rattachements";"Jointure sur l'identifiant Siebel du contact";"Le compte parent est identique pour 100 % des contacts"
+"MIG-007";"[MIG-007] Reprise contacts - Rattachement au compte parent";"Référence : MIG-007
+User Story : US-02
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Reprise des comptes validée.";"Manual";"High";"Migration Nominal";"US-02";"4";"Rechercher les contacts migrés sans compte";"SELECT COUNT() FROM Contact WHERE Siebel_Id__c != null AND AccountId = null";"0 contact orphelin (hors cas prévus par la spécification)"
+"MIG-008";"[MIG-008] Reprise contacts - Contact dont le compte parent est rejeté";"Référence : MIG-008
+User Story : US-02
+Nature : Erreur
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Un compte rejeté existe (voir MIG-005).";"Manual";"Medium";"Migration Erreur";"US-02";"1";"Insérer dans le staging un contact rattaché au compte rejeté";"Contact TEST-CTC-001, compte parent TEST-ERR-001";"La ligne est insérée dans le staging"
+"MIG-008";"[MIG-008] Reprise contacts - Contact dont le compte parent est rejeté";"Référence : MIG-008
+User Story : US-02
+Nature : Erreur
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Un compte rejeté existe (voir MIG-005).";"Manual";"Medium";"Migration Erreur";"US-02";"2";"Lancer le lot de reprise des contacts";"Lot contenant TEST-CTC-001";"Le lot se termine sans interruption"
+"MIG-008";"[MIG-008] Reprise contacts - Contact dont le compte parent est rejeté";"Référence : MIG-008
+User Story : US-02
+Nature : Erreur
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Un compte rejeté existe (voir MIG-005).";"Manual";"Medium";"Migration Erreur";"US-02";"3";"Vérifier le rejet en cascade";"SELECT ERROR_MSG FROM STG_REJECT WHERE SIEBEL_ID = 'TEST-CTC-001'";"1 ligne, motif 'compte parent absent ou rejeté'"
+"MIG-008";"[MIG-008] Reprise contacts - Contact dont le compte parent est rejeté";"Référence : MIG-008
+User Story : US-02
+Nature : Erreur
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Un compte rejeté existe (voir MIG-005).";"Manual";"Medium";"Migration Erreur";"US-02";"4";"Vérifier l'absence du contact en cible";"SELECT Id FROM Contact WHERE Siebel_Id__c = 'TEST-CTC-001'";"Aucun enregistrement retourné"
+"MIG-009";"[MIG-009] Reprise contacts - Caractères spéciaux et longueurs maximales";"Référence : MIG-009
+User Story : US-02
+Nature : Alternatif
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench).";"Manual";"Medium";"Migration Alternatif";"US-02";"1";"Préparer des contacts source avec des valeurs particulières";"Noms : 'Noël D'Açàï', 'Müller-Søren', 'O''Brien', nom de 80 caractères, commentaire de 255 caractères";"Les contacts sont présents dans le staging"
+"MIG-009";"[MIG-009] Reprise contacts - Caractères spéciaux et longueurs maximales";"Référence : MIG-009
+User Story : US-02
+Nature : Alternatif
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench).";"Manual";"Medium";"Migration Alternatif";"US-02";"2";"Lancer le lot de reprise des contacts";"Lot contenant ces contacts";"Tous les contacts sont chargés, aucun rejet"
+"MIG-009";"[MIG-009] Reprise contacts - Caractères spéciaux et longueurs maximales";"Référence : MIG-009
+User Story : US-02
+Nature : Alternatif
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench).";"Manual";"Medium";"Migration Alternatif";"US-02";"3";"Comparer les valeurs source et cible";"SOQL sur les Siebel_Id__c concernés";"Valeurs strictement identiques, aucun caractère corrompu"
+"MIG-009";"[MIG-009] Reprise contacts - Caractères spéciaux et longueurs maximales";"Référence : MIG-009
+User Story : US-02
+Nature : Alternatif
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench).";"Manual";"Medium";"Migration Alternatif";"US-02";"4";"Vérifier les longueurs";"Longueur du nom et du commentaire en cible";"Aucune troncature"
+"MIG-009";"[MIG-009] Reprise contacts - Caractères spéciaux et longueurs maximales";"Référence : MIG-009
+User Story : US-02
+Nature : Alternatif
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench).";"Manual";"Medium";"Migration Alternatif";"US-02";"5";"Afficher un contact dans l'IHM Salesforce";"Contact 'Noël D'Açàï'";"L'affichage est correct"
+"MIG-010";"[MIG-010] Reprise opportunités - Montants et devises";"Référence : MIG-010
+User Story : US-03
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench).";"Manual";"High";"Migration Nominal";"US-03";"1";"Calculer les totaux par devise et par étape dans Siebel";"SELECT CURCY_CD, STG_NAME, COUNT(*), SUM(SUM_REVN_AMT) FROM SIEBEL.S_OPTY ... GROUP BY CURCY_CD, STG_NAME";"Totaux source obtenus"
+"MIG-010";"[MIG-010] Reprise opportunités - Montants et devises";"Référence : MIG-010
+User Story : US-03
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench).";"Manual";"High";"Migration Nominal";"US-03";"2";"Calculer les mêmes totaux dans Salesforce";"SELECT CurrencyIsoCode, StageName, COUNT(Id), SUM(Amount) FROM Opportunity WHERE Siebel_Id__c != null GROUP BY CurrencyIsoCode, StageName";"Totaux cible obtenus"
+"MIG-010";"[MIG-010] Reprise opportunités - Montants et devises";"Référence : MIG-010
+User Story : US-03
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench).";"Manual";"High";"Migration Nominal";"US-03";"3";"Comparer les totaux en appliquant la correspondance des étapes";"Table de correspondance des étapes de vente";"Nombres et montants identiques au centime pour chaque couple devise / étape"
+"MIG-010";"[MIG-010] Reprise opportunités - Montants et devises";"Référence : MIG-010
+User Story : US-03
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench).";"Manual";"High";"Migration Nominal";"US-03";"4";"Contrôler 10 opportunités unitairement";"10 opportunités dont 3 en devise étrangère";"Montant, devise et étape conformes, aucune conversion non prévue"
+"MIG-011";"[MIG-011] Reprise opportunités - Dates et fuseaux horaires";"Référence : MIG-011
+User Story : US-03
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench).";"Manual";"Medium";"Migration Nominal";"US-03";"1";"Sélectionner des opportunités créées autour de minuit";"CREATED entre 22h00 et 02h00 UTC, 10 enregistrements";"Échantillon source obtenu avec dates de création et de clôture"
+"MIG-011";"[MIG-011] Reprise opportunités - Dates et fuseaux horaires";"Référence : MIG-011
+User Story : US-03
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench).";"Manual";"Medium";"Migration Nominal";"US-03";"2";"Lire les dates des mêmes opportunités dans Salesforce";"SELECT Siebel_Id__c, CloseDate, Siebel_Created_Date__c, CreatedDate FROM Opportunity";"Dates cible obtenues"
+"MIG-011";"[MIG-011] Reprise opportunités - Dates et fuseaux horaires";"Référence : MIG-011
+User Story : US-03
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench).";"Manual";"Medium";"Migration Nominal";"US-03";"3";"Comparer les dates de clôture";"Date de clôture source et CloseDate";"Aucun décalage d'un jour"
+"MIG-011";"[MIG-011] Reprise opportunités - Dates et fuseaux horaires";"Référence : MIG-011
+User Story : US-03
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench).";"Manual";"Medium";"Migration Nominal";"US-03";"4";"Comparer les dates de création d'origine";"CREATED source et date de création reprise";"La date d'origine est conservée, elle n'est pas remplacée par la date de reprise"
+"MIG-012";"[MIG-012] Reprise demandes de service - Historique et pièces jointes";"Référence : MIG-012
+User Story : US-04
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench).";"Manual";"Medium";"Migration Nominal";"US-04";"1";"Sélectionner 20 demandes de service Siebel avec activités et pièces jointes";"S_SRV_REQ, S_EVT_ACT, S_SR_ATT";"Échantillon source avec nombre d'activités et de fichiers par demande"
+"MIG-012";"[MIG-012] Reprise demandes de service - Historique et pièces jointes";"Référence : MIG-012
+User Story : US-04
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench).";"Manual";"Medium";"Migration Nominal";"US-04";"2";"Retrouver les Case correspondants dans Salesforce";"SELECT Id, CaseNumber, Status FROM Case WHERE Siebel_Id__c IN (:échantillon)";"Les 20 demandes sont présentes, statut conforme à la correspondance"
+"MIG-012";"[MIG-012] Reprise demandes de service - Historique et pièces jointes";"Référence : MIG-012
+User Story : US-04
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench).";"Manual";"Medium";"Migration Nominal";"US-04";"3";"Comparer le nombre d'activités et de notes par demande";"Comptage source et cible";"Nombres identiques, ordre chronologique conservé"
+"MIG-012";"[MIG-012] Reprise demandes de service - Historique et pièces jointes";"Référence : MIG-012
+User Story : US-04
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench).";"Manual";"Medium";"Migration Nominal";"US-04";"4";"Comparer les pièces jointes";"Nom, taille et nombre de fichiers par demande";"Nombre, nom et taille identiques"
+"MIG-012";"[MIG-012] Reprise demandes de service - Historique et pièces jointes";"Référence : MIG-012
+User Story : US-04
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench).";"Manual";"Medium";"Migration Nominal";"US-04";"5";"Ouvrir 5 pièces jointes depuis l'IHM Salesforce";"Formats PDF, DOCX, image";"Les fichiers s'ouvrent et leur contenu est lisible"
+"MIG-013";"[MIG-013] Reprise comptes - Rejeu du lot (idempotence)";"Référence : MIG-013
+User Story : US-01
+Nature : Alternatif
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Un lot de comptes déjà chargé avec succès.";"Manual";"High";"Migration Alternatif";"US-01";"1";"Noter le nombre de comptes migrés avant rejeu";"SELECT COUNT() FROM Account WHERE Siebel_Id__c != null";"Le nombre N1 est noté"
+"MIG-013";"[MIG-013] Reprise comptes - Rejeu du lot (idempotence)";"Référence : MIG-013
+User Story : US-01
+Nature : Alternatif
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Un lot de comptes déjà chargé avec succès.";"Manual";"High";"Migration Alternatif";"US-01";"2";"Relancer le même lot de reprise";"Lot identique, sans modification des données";"Le lot se termine avec succès"
+"MIG-013";"[MIG-013] Reprise comptes - Rejeu du lot (idempotence)";"Référence : MIG-013
+User Story : US-01
+Nature : Alternatif
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Un lot de comptes déjà chargé avec succès.";"Manual";"High";"Migration Alternatif";"US-01";"3";"Recompter les comptes migrés";"Même requête SOQL";"Le nombre est toujours N1"
+"MIG-013";"[MIG-013] Reprise comptes - Rejeu du lot (idempotence)";"Référence : MIG-013
+User Story : US-01
+Nature : Alternatif
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Un lot de comptes déjà chargé avec succès.";"Manual";"High";"Migration Alternatif";"US-01";"4";"Rechercher des doublons d'identifiant Siebel";"SELECT Siebel_Id__c, COUNT(Id) FROM Account GROUP BY Siebel_Id__c HAVING COUNT(Id) > 1";"0 ligne retournée"
+"MIG-014";"[MIG-014] Reprise comptes - Reprise delta";"Référence : MIG-014
+User Story : US-01
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench).";"Manual";"High";"Migration Nominal";"US-01";"1";"Modifier 10 comptes dans Siebel après la reprise initiale";"Téléphone et adresse de 10 comptes identifiés";"Les modifications sont enregistrées, LAST_UPD mis à jour"
+"MIG-014";"[MIG-014] Reprise comptes - Reprise delta";"Référence : MIG-014
+User Story : US-01
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench).";"Manual";"High";"Migration Nominal";"US-01";"2";"Lancer le lot de reprise delta";"Delta depuis la date de la reprise initiale";"Le lot se termine avec succès et annonce 10 enregistrements traités"
+"MIG-014";"[MIG-014] Reprise comptes - Reprise delta";"Référence : MIG-014
+User Story : US-01
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench).";"Manual";"High";"Migration Nominal";"US-01";"3";"Vérifier les 10 comptes dans Salesforce";"SOQL sur les 10 Siebel_Id__c";"Les nouvelles valeurs sont présentes"
+"MIG-014";"[MIG-014] Reprise comptes - Reprise delta";"Référence : MIG-014
+User Story : US-01
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench).";"Manual";"High";"Migration Nominal";"US-01";"4";"Vérifier que les autres comptes n'ont pas été touchés";"SELECT COUNT() FROM Account WHERE LastModifiedDate >= :débutDelta AND Siebel_Id__c != null";"10 comptes modifiés, pas plus"
+"MIG-015";"[MIG-015] Reprise contacts - Propriétaires et visibilité";"Référence : MIG-015
+User Story : US-02
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Table de correspondance positions Siebel / utilisateurs Salesforce. Deux comptes commerciaux de test.";"Manual";"High";"Migration Nominal";"US-02";"1";"Extraire la position principale d'un échantillon de comptes et contacts Siebel";"S_POSTN, 50 enregistrements sur 2 équipes commerciales";"Liste source des positions obtenue"
+"MIG-015";"[MIG-015] Reprise contacts - Propriétaires et visibilité";"Référence : MIG-015
+User Story : US-02
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Table de correspondance positions Siebel / utilisateurs Salesforce. Deux comptes commerciaux de test.";"Manual";"High";"Migration Nominal";"US-02";"2";"Extraire le propriétaire des mêmes enregistrements dans Salesforce";"SELECT Siebel_Id__c, Owner.Username FROM Contact";"Liste cible des propriétaires obtenue"
+"MIG-015";"[MIG-015] Reprise contacts - Propriétaires et visibilité";"Référence : MIG-015
+User Story : US-02
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Table de correspondance positions Siebel / utilisateurs Salesforce. Deux comptes commerciaux de test.";"Manual";"High";"Migration Nominal";"US-02";"3";"Comparer avec la table de correspondance";"Correspondance position / utilisateur";"Propriétaire conforme pour 100 % de l'échantillon"
+"MIG-015";"[MIG-015] Reprise contacts - Propriétaires et visibilité";"Référence : MIG-015
+User Story : US-02
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Table de correspondance positions Siebel / utilisateurs Salesforce. Deux comptes commerciaux de test.";"Manual";"High";"Migration Nominal";"US-02";"4";"Se connecter à Salesforce avec le commercial A";"Utilisateur commercial de l'équipe A";"Il voit les enregistrements de son périmètre"
+"MIG-015";"[MIG-015] Reprise contacts - Propriétaires et visibilité";"Référence : MIG-015
+User Story : US-02
+Nature : Nominal
+Préconditions : Reprise initiale exécutée en recette. Accès lecture au schéma Oracle Siebel et aux tables de staging. Accès SOQL à Salesforce (Developer Console ou Workbench). Table de correspondance positions Siebel / utilisateurs Salesforce. Deux comptes commerciaux de test.";"Manual";"High";"Migration Nominal";"US-02";"5";"Rechercher un enregistrement de l'équipe B avec le commercial A";"Contact appartenant à l'équipe B";"L'enregistrement n'est pas visible, comme dans Siebel"
+"API-001";"[API-001] API compte - Création d'un compte (POST)";"Référence : API-001
+User Story : US-05
+Nature : Nominal
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'.";"Manual";"High";"API Nominal";"US-05";"1";"Envoyer la requête de création";"POST {{baseUrl}}/accounts - corps : name='TEST API 001', siret='11122233300011', adresse complète, segment='PME'";"Code HTTP 201"
+"API-001";"[API-001] API compte - Création d'un compte (POST)";"Référence : API-001
+User Story : US-05
+Nature : Nominal
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'.";"Manual";"High";"API Nominal";"US-05";"2";"Contrôler le corps de la réponse";"Tests Postman : présence de id, égalité de name et siret";"Identifiant retourné, valeurs identiques à la requête, schéma conforme au contrat"
+"API-001";"[API-001] API compte - Création d'un compte (POST)";"Référence : API-001
+User Story : US-05
+Nature : Nominal
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'.";"Manual";"High";"API Nominal";"US-05";"3";"Enregistrer l'identifiant dans une variable de collection";"pm.collectionVariables.set('accountId', ...)";"La variable accountId est renseignée"
+"API-001";"[API-001] API compte - Création d'un compte (POST)";"Référence : API-001
+User Story : US-05
+Nature : Nominal
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'.";"Manual";"High";"API Nominal";"US-05";"4";"Rechercher le compte dans Salesforce";"SELECT Name, SIRET__c FROM Account WHERE Id = ':accountId'";"Le compte existe avec les valeurs envoyées"
+"API-002";"[API-002] API compte - Consultation d'un compte (GET)";"Référence : API-002
+User Story : US-05
+Nature : Nominal
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'. Compte créé par API-001.";"Manual";"High";"API Nominal";"US-05";"1";"Envoyer la requête de consultation";"GET {{baseUrl}}/accounts/{{accountId}}";"Code HTTP 200"
+"API-002";"[API-002] API compte - Consultation d'un compte (GET)";"Référence : API-002
+User Story : US-05
+Nature : Nominal
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'. Compte créé par API-001.";"Manual";"High";"API Nominal";"US-05";"2";"Valider le schéma de la réponse";"Test Postman de validation du schéma JSON du contrat d'interface";"Schéma valide, tous les champs obligatoires présents"
+"API-002";"[API-002] API compte - Consultation d'un compte (GET)";"Référence : API-002
+User Story : US-05
+Nature : Nominal
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'. Compte créé par API-001.";"Manual";"High";"API Nominal";"US-05";"3";"Comparer les valeurs avec l'IHM Salesforce";"Fiche du compte TEST API 001";"Valeurs identiques"
+"API-002";"[API-002] API compte - Consultation d'un compte (GET)";"Référence : API-002
+User Story : US-05
+Nature : Nominal
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'. Compte créé par API-001.";"Manual";"High";"API Nominal";"US-05";"4";"Contrôler les en-têtes";"Content-Type";"application/json"
+"API-003";"[API-003] API compte - Mise à jour partielle (PATCH)";"Référence : API-003
+User Story : US-05
+Nature : Nominal
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'. Compte créé par API-001.";"Manual";"High";"API Nominal";"US-05";"1";"Lire le compte avant modification";"GET {{baseUrl}}/accounts/{{accountId}}";"Code 200, valeurs initiales notées"
+"API-003";"[API-003] API compte - Mise à jour partielle (PATCH)";"Référence : API-003
+User Story : US-05
+Nature : Nominal
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'. Compte créé par API-001.";"Manual";"High";"API Nominal";"US-05";"2";"Envoyer la mise à jour de l'adresse";"PATCH {{baseUrl}}/accounts/{{accountId}} - corps : city='Lyon', postalCode='69003'";"Code HTTP 200"
+"API-003";"[API-003] API compte - Mise à jour partielle (PATCH)";"Référence : API-003
+User Story : US-05
+Nature : Nominal
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'. Compte créé par API-001.";"Manual";"High";"API Nominal";"US-05";"3";"Relire le compte";"GET {{baseUrl}}/accounts/{{accountId}}";"Ville et code postal modifiés"
+"API-003";"[API-003] API compte - Mise à jour partielle (PATCH)";"Référence : API-003
+User Story : US-05
+Nature : Nominal
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'. Compte créé par API-001.";"Manual";"High";"API Nominal";"US-05";"4";"Comparer les autres champs avec les valeurs initiales";"name, siret, segment";"Aucun autre champ n'a changé"
+"API-004";"[API-004] API compte - Création sans champ obligatoire";"Référence : API-004
+User Story : US-05
+Nature : Erreur
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'.";"Manual";"High";"API Erreur";"US-05";"1";"Envoyer une création sans nom";"POST {{baseUrl}}/accounts - corps sans le champ name, siret='11122233300029'";"Code HTTP 400"
+"API-004";"[API-004] API compte - Création sans champ obligatoire";"Référence : API-004
+User Story : US-05
+Nature : Erreur
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'.";"Manual";"High";"API Erreur";"US-05";"2";"Contrôler le corps d'erreur";"Tests Postman sur le code et le message d'erreur";"Erreur normalisée désignant le champ name comme obligatoire"
+"API-004";"[API-004] API compte - Création sans champ obligatoire";"Référence : API-004
+User Story : US-05
+Nature : Erreur
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'.";"Manual";"High";"API Erreur";"US-05";"3";"Vérifier qu'aucun compte n'a été créé";"SELECT COUNT() FROM Account WHERE SIRET__c = '11122233300029'";"0 compte"
+"API-005";"[API-005] API compte - Jeton absent ou expiré";"Référence : API-005
+User Story : US-05
+Nature : Erreur
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'. Un jeton expiré conservé.";"Manual";"High";"API Erreur";"US-05";"1";"Appeler l'API sans en-tête d'autorisation";"GET {{baseUrl}}/accounts/{{accountId}} sans Authorization";"Code HTTP 401"
+"API-005";"[API-005] API compte - Jeton absent ou expiré";"Référence : API-005
+User Story : US-05
+Nature : Erreur
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'. Un jeton expiré conservé.";"Manual";"High";"API Erreur";"US-05";"2";"Appeler l'API avec un jeton expiré";"Authorization: Bearer {{expiredToken}}";"Code HTTP 401"
+"API-005";"[API-005] API compte - Jeton absent ou expiré";"Référence : API-005
+User Story : US-05
+Nature : Erreur
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'. Un jeton expiré conservé.";"Manual";"High";"API Erreur";"US-05";"3";"Appeler l'API avec un jeton malformé";"Authorization: Bearer abc123";"Code HTTP 401"
+"API-005";"[API-005] API compte - Jeton absent ou expiré";"Référence : API-005
+User Story : US-05
+Nature : Erreur
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'. Un jeton expiré conservé.";"Manual";"High";"API Erreur";"US-05";"4";"Contrôler les corps de réponse";"Les trois réponses";"Aucune donnée de compte ni détail technique exposé"
+"API-006";"[API-006] API compte - Profil non autorisé en écriture";"Référence : API-006
+User Story : US-05
+Nature : Erreur
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'. Client OAuth en lecture seule disponible.";"Manual";"Medium";"API Erreur";"US-05";"1";"Obtenir un jeton avec le client en lecture seule";"clientId et clientSecret du client 'lecture'";"Jeton obtenu"
+"API-006";"[API-006] API compte - Profil non autorisé en écriture";"Référence : API-006
+User Story : US-05
+Nature : Erreur
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'. Client OAuth en lecture seule disponible.";"Manual";"Medium";"API Erreur";"US-05";"2";"Tenter une création";"POST {{baseUrl}}/accounts avec un corps valide";"Code HTTP 403"
+"API-006";"[API-006] API compte - Profil non autorisé en écriture";"Référence : API-006
+User Story : US-05
+Nature : Erreur
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'. Client OAuth en lecture seule disponible.";"Manual";"Medium";"API Erreur";"US-05";"3";"Vérifier qu'aucun compte n'a été créé";"SOQL sur le SIRET envoyé";"0 compte"
+"API-006";"[API-006] API compte - Profil non autorisé en écriture";"Référence : API-006
+User Story : US-05
+Nature : Erreur
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'. Client OAuth en lecture seule disponible.";"Manual";"Medium";"API Erreur";"US-05";"4";"Consulter un compte avec le même jeton";"GET {{baseUrl}}/accounts/{{accountId}}";"Code HTTP 200 : la lecture reste autorisée"
+"API-007";"[API-007] API compte - Ressource inexistante";"Référence : API-007
+User Story : US-05
+Nature : Erreur
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'.";"Manual";"Medium";"API Erreur";"US-05";"1";"Consulter un identifiant bien formé mais inconnu";"GET {{baseUrl}}/accounts/001000000000000AAA";"Code HTTP 404"
+"API-007";"[API-007] API compte - Ressource inexistante";"Référence : API-007
+User Story : US-05
+Nature : Erreur
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'.";"Manual";"Medium";"API Erreur";"US-05";"2";"Contrôler le corps d'erreur";"Tests Postman sur la structure d'erreur";"Corps d'erreur normalisé, sans trace technique"
+"API-007";"[API-007] API compte - Ressource inexistante";"Référence : API-007
+User Story : US-05
+Nature : Erreur
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'.";"Manual";"Medium";"API Erreur";"US-05";"3";"Consulter un identifiant mal formé";"GET {{baseUrl}}/accounts/XYZ";"Code HTTP 400 ou 404 selon le contrat"
+"API-008";"[API-008] API compte - Création d'un doublon fonctionnel";"Référence : API-008
+User Story : US-05
+Nature : Alternatif
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'. Compte créé par API-001 (SIRET 11122233300011).";"Manual";"High";"API Alternatif";"US-05";"1";"Envoyer une création avec un SIRET déjà existant";"POST {{baseUrl}}/accounts - siret='11122233300011', name='TEST API DOUBLON'";"Code HTTP 409 (ou comportement prévu par la règle de dédoublonnage)"
+"API-008";"[API-008] API compte - Création d'un doublon fonctionnel";"Référence : API-008
+User Story : US-05
+Nature : Alternatif
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'. Compte créé par API-001 (SIRET 11122233300011).";"Manual";"High";"API Alternatif";"US-05";"2";"Contrôler le corps de la réponse";"Message et identifiant du compte existant";"Le message signale le doublon et référence le compte existant"
+"API-008";"[API-008] API compte - Création d'un doublon fonctionnel";"Référence : API-008
+User Story : US-05
+Nature : Alternatif
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'. Compte créé par API-001 (SIRET 11122233300011).";"Manual";"High";"API Alternatif";"US-05";"3";"Compter les comptes portant ce SIRET";"SELECT COUNT() FROM Account WHERE SIRET__c = '11122233300011'";"1 seul compte"
+"API-009";"[API-009] API compte - Compatibilité des consommateurs historiques Siebel";"Référence : API-009
+User Story : US-05
+Nature : Alternatif
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'. Requête et réponse de référence enregistrées depuis Siebel pour un consommateur historique.";"Manual";"High";"API Alternatif";"US-05";"1";"Rejouer la requête historique sur la nouvelle façade";"Requête SOAP ou REST enregistrée, client connu des deux systèmes";"Code de succès, réponse reçue"
+"API-009";"[API-009] API compte - Compatibilité des consommateurs historiques Siebel";"Référence : API-009
+User Story : US-05
+Nature : Alternatif
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'. Requête et réponse de référence enregistrées depuis Siebel pour un consommateur historique.";"Manual";"High";"API Alternatif";"US-05";"2";"Comparer la structure de la réponse avec la réponse de référence Siebel";"Réponse de référence";"Mêmes éléments obligatoires, mêmes types"
+"API-009";"[API-009] API compte - Compatibilité des consommateurs historiques Siebel";"Référence : API-009
+User Story : US-05
+Nature : Alternatif
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'. Requête et réponse de référence enregistrées depuis Siebel pour un consommateur historique.";"Manual";"High";"API Alternatif";"US-05";"3";"Comparer les valeurs métier";"Nom, identifiant client, statut, adresse";"Valeurs fonctionnellement équivalentes"
+"API-009";"[API-009] API compte - Compatibilité des consommateurs historiques Siebel";"Référence : API-009
+User Story : US-05
+Nature : Alternatif
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'. Requête et réponse de référence enregistrées depuis Siebel pour un consommateur historique.";"Manual";"High";"API Alternatif";"US-05";"4";"Rejouer un cas d'erreur historique";"Requête avec identifiant client inconnu";"Code et structure d'erreur compatibles avec ce qu'attend le consommateur"
+"API-010";"[API-010] API compte - Temps de réponse";"Référence : API-010
+User Story : US-05
+Nature : Alternatif
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'. Seuil de performance défini (exemple : 95e centile < 800 ms).";"Manual";"Low";"API Alternatif";"US-05";"1";"Lancer la collection dans le Runner";"50 itérations, GET et POST comptes";"Les 50 itérations se terminent"
+"API-010";"[API-010] API compte - Temps de réponse";"Référence : API-010
+User Story : US-05
+Nature : Alternatif
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'. Seuil de performance défini (exemple : 95e centile < 800 ms).";"Manual";"Low";"API Alternatif";"US-05";"2";"Relever les temps de réponse";"Export des résultats du Runner";"95e centile inférieur au seuil défini"
+"API-010";"[API-010] API compte - Temps de réponse";"Référence : API-010
+User Story : US-05
+Nature : Alternatif
+Préconditions : Environnement Postman 'RECETTE' configuré (baseUrl, clientId, clientSecret). Jeton OAuth valide obtenu par la requête 'Auth'. Seuil de performance défini (exemple : 95e centile < 800 ms).";"Manual";"Low";"API Alternatif";"US-05";"3";"Contrôler les codes de retour";"Résultats du Runner";"Aucune erreur 5xx ni dépassement de délai"
+"KAF-001";"[KAF-001] Kafka - Événement de création de compte";"Référence : KAF-001
+User Story : US-06
+Nature : Nominal
+Préconditions : Accès au cluster Kafka de recette (outil : Kafka UI, Offset Explorer ou kcat). Consommateur de test abonné au topic crm.account.v1.";"Manual";"High";"Kafka Nominal";"US-06";"1";"Créer un compte dans Salesforce";"Nom 'TEST KAFKA 001', SIRET 22233344400011";"Compte créé, identifiant noté"
+"KAF-001";"[KAF-001] Kafka - Événement de création de compte";"Référence : KAF-001
+User Story : US-06
+Nature : Nominal
+Préconditions : Accès au cluster Kafka de recette (outil : Kafka UI, Offset Explorer ou kcat). Consommateur de test abonné au topic crm.account.v1.";"Manual";"High";"Kafka Nominal";"US-06";"2";"Consommer les messages du topic";"Topic crm.account.v1, filtre sur la clé = identifiant du compte";"1 seul message reçu"
+"KAF-001";"[KAF-001] Kafka - Événement de création de compte";"Référence : KAF-001
+User Story : US-06
+Nature : Nominal
+Préconditions : Accès au cluster Kafka de recette (outil : Kafka UI, Offset Explorer ou kcat). Consommateur de test abonné au topic crm.account.v1.";"Manual";"High";"Kafka Nominal";"US-06";"3";"Contrôler l'en-tête et la clé";"eventType, clé du message";"eventType = AccountCreated, clé = identifiant du compte"
+"KAF-001";"[KAF-001] Kafka - Événement de création de compte";"Référence : KAF-001
+User Story : US-06
+Nature : Nominal
+Préconditions : Accès au cluster Kafka de recette (outil : Kafka UI, Offset Explorer ou kcat). Consommateur de test abonné au topic crm.account.v1.";"Manual";"High";"Kafka Nominal";"US-06";"4";"Valider le payload";"Schéma enregistré dans le registre de schémas";"Payload conforme au schéma, valeurs identiques à la saisie"
+"KAF-001";"[KAF-001] Kafka - Événement de création de compte";"Référence : KAF-001
+User Story : US-06
+Nature : Nominal
+Préconditions : Accès au cluster Kafka de recette (outil : Kafka UI, Offset Explorer ou kcat). Consommateur de test abonné au topic crm.account.v1.";"Manual";"High";"Kafka Nominal";"US-06";"5";"Contrôler l'horodatage";"Champ eventTime";"Cohérent avec l'heure de création, format ISO 8601 UTC"
+"KAF-002";"[KAF-002] Kafka - Événement de modification de compte";"Référence : KAF-002
+User Story : US-06
+Nature : Nominal
+Préconditions : Accès au cluster Kafka de recette (outil : Kafka UI, Offset Explorer ou kcat). Consommateur de test abonné au topic crm.account.v1. Compte créé par KAF-001.";"Manual";"High";"Kafka Nominal";"US-06";"1";"Modifier l'adresse du compte dans Salesforce";"Ville 'Nantes', code postal 44000";"Modification enregistrée"
+"KAF-002";"[KAF-002] Kafka - Événement de modification de compte";"Référence : KAF-002
+User Story : US-06
+Nature : Nominal
+Préconditions : Accès au cluster Kafka de recette (outil : Kafka UI, Offset Explorer ou kcat). Consommateur de test abonné au topic crm.account.v1. Compte créé par KAF-001.";"Manual";"High";"Kafka Nominal";"US-06";"2";"Consommer le nouveau message";"Topic crm.account.v1, clé = identifiant du compte";"1 nouveau message, eventType = AccountUpdated"
+"KAF-002";"[KAF-002] Kafka - Événement de modification de compte";"Référence : KAF-002
+User Story : US-06
+Nature : Nominal
+Préconditions : Accès au cluster Kafka de recette (outil : Kafka UI, Offset Explorer ou kcat). Consommateur de test abonné au topic crm.account.v1. Compte créé par KAF-001.";"Manual";"High";"Kafka Nominal";"US-06";"3";"Contrôler le payload";"Champs d'adresse";"Nouvelles valeurs présentes, autres champs inchangés"
+"KAF-002";"[KAF-002] Kafka - Événement de modification de compte";"Référence : KAF-002
+User Story : US-06
+Nature : Nominal
+Préconditions : Accès au cluster Kafka de recette (outil : Kafka UI, Offset Explorer ou kcat). Consommateur de test abonné au topic crm.account.v1. Compte créé par KAF-001.";"Manual";"High";"Kafka Nominal";"US-06";"4";"Enregistrer le compte sans rien modifier";"Clic sur Enregistrer sans changement";"Aucun message publié (ou comportement prévu par la spécification)"
+"KAF-003";"[KAF-003] Kafka - Ordre des événements d'un même compte";"Référence : KAF-003
+User Story : US-06
+Nature : Nominal
+Préconditions : Accès au cluster Kafka de recette (outil : Kafka UI, Offset Explorer ou kcat). Consommateur de test abonné au topic crm.account.v1. Compte créé par KAF-001.";"Manual";"Medium";"Kafka Nominal";"US-06";"1";"Enchaîner 5 modifications rapides du téléphone";"Valeurs 0100000001 à 0100000005";"5 modifications enregistrées"
+"KAF-003";"[KAF-003] Kafka - Ordre des événements d'un même compte";"Référence : KAF-003
+User Story : US-06
+Nature : Nominal
+Préconditions : Accès au cluster Kafka de recette (outil : Kafka UI, Offset Explorer ou kcat). Consommateur de test abonné au topic crm.account.v1. Compte créé par KAF-001.";"Manual";"Medium";"Kafka Nominal";"US-06";"2";"Consommer les messages du compte";"Topic crm.account.v1, clé = identifiant du compte";"5 messages AccountUpdated"
+"KAF-003";"[KAF-003] Kafka - Ordre des événements d'un même compte";"Référence : KAF-003
+User Story : US-06
+Nature : Nominal
+Préconditions : Accès au cluster Kafka de recette (outil : Kafka UI, Offset Explorer ou kcat). Consommateur de test abonné au topic crm.account.v1. Compte créé par KAF-001.";"Manual";"Medium";"Kafka Nominal";"US-06";"3";"Contrôler la partition";"Numéro de partition des 5 messages";"Même partition pour les 5 messages"
+"KAF-003";"[KAF-003] Kafka - Ordre des événements d'un même compte";"Référence : KAF-003
+User Story : US-06
+Nature : Nominal
+Préconditions : Accès au cluster Kafka de recette (outil : Kafka UI, Offset Explorer ou kcat). Consommateur de test abonné au topic crm.account.v1. Compte créé par KAF-001.";"Manual";"Medium";"Kafka Nominal";"US-06";"4";"Contrôler l'ordre";"Offsets et valeurs du téléphone";"Offsets croissants, valeurs dans l'ordre de saisie, la dernière est 0100000005"
+"KAF-004";"[KAF-004] Kafka - Message invalide côté consommateur";"Référence : KAF-004
+User Story : US-06
+Nature : Erreur
+Préconditions : Accès au cluster Kafka de recette (outil : Kafka UI, Offset Explorer ou kcat). Consommateur de test abonné au topic crm.account.v1. Droit de publication sur le topic en recette. Accès au topic des messages en erreur.";"Manual";"High";"Kafka Erreur";"US-06";"1";"Publier un message non conforme au schéma";"Topic crm.account.v1, payload sans identifiant de compte";"Message publié"
+"KAF-004";"[KAF-004] Kafka - Message invalide côté consommateur";"Référence : KAF-004
+User Story : US-06
+Nature : Erreur
+Préconditions : Accès au cluster Kafka de recette (outil : Kafka UI, Offset Explorer ou kcat). Consommateur de test abonné au topic crm.account.v1. Droit de publication sur le topic en recette. Accès au topic des messages en erreur.";"Manual";"High";"Kafka Erreur";"US-06";"2";"Observer le topic des messages en erreur";"Topic crm.account.v1.dlq";"Le message invalide y est présent avec le motif de l'erreur"
+"KAF-004";"[KAF-004] Kafka - Message invalide côté consommateur";"Référence : KAF-004
+User Story : US-06
+Nature : Erreur
+Préconditions : Accès au cluster Kafka de recette (outil : Kafka UI, Offset Explorer ou kcat). Consommateur de test abonné au topic crm.account.v1. Droit de publication sur le topic en recette. Accès au topic des messages en erreur.";"Manual";"High";"Kafka Erreur";"US-06";"3";"Publier ensuite un message valide";"AccountUpdated valide sur un compte de test";"Le message est traité normalement par le consommateur"
+"KAF-004";"[KAF-004] Kafka - Message invalide côté consommateur";"Référence : KAF-004
+User Story : US-06
+Nature : Erreur
+Préconditions : Accès au cluster Kafka de recette (outil : Kafka UI, Offset Explorer ou kcat). Consommateur de test abonné au topic crm.account.v1. Droit de publication sur le topic en recette. Accès au topic des messages en erreur.";"Manual";"High";"Kafka Erreur";"US-06";"4";"Consulter la supervision";"Journal du consommateur, tableau d'alertes";"Erreur tracée et alerte émise, le consommateur n'est pas bloqué"
+"KAF-005";"[KAF-005] Kafka - Message reçu en double (idempotence)";"Référence : KAF-005
+User Story : US-06
+Nature : Alternatif
+Préconditions : Accès au cluster Kafka de recette (outil : Kafka UI, Offset Explorer ou kcat). Consommateur de test abonné au topic crm.account.v1. Droit de publication en recette. Accès à l'application consommatrice.";"Manual";"High";"Kafka Alternatif";"US-06";"1";"Publier un événement de modification";"AccountUpdated, eventId = 'evt-test-005'";"Message traité, mise à jour visible dans l'application consommatrice"
+"KAF-005";"[KAF-005] Kafka - Message reçu en double (idempotence)";"Référence : KAF-005
+User Story : US-06
+Nature : Alternatif
+Préconditions : Accès au cluster Kafka de recette (outil : Kafka UI, Offset Explorer ou kcat). Consommateur de test abonné au topic crm.account.v1. Droit de publication en recette. Accès à l'application consommatrice.";"Manual";"High";"Kafka Alternatif";"US-06";"2";"Republier exactement le même message";"Même eventId, même payload";"Message consommé"
+"KAF-005";"[KAF-005] Kafka - Message reçu en double (idempotence)";"Référence : KAF-005
+User Story : US-06
+Nature : Alternatif
+Préconditions : Accès au cluster Kafka de recette (outil : Kafka UI, Offset Explorer ou kcat). Consommateur de test abonné au topic crm.account.v1. Droit de publication en recette. Accès à l'application consommatrice.";"Manual";"High";"Kafka Alternatif";"US-06";"3";"Vérifier l'application consommatrice";"Historique du compte dans l'application aval";"Une seule mise à jour appliquée"
+"KAF-005";"[KAF-005] Kafka - Message reçu en double (idempotence)";"Référence : KAF-005
+User Story : US-06
+Nature : Alternatif
+Préconditions : Accès au cluster Kafka de recette (outil : Kafka UI, Offset Explorer ou kcat). Consommateur de test abonné au topic crm.account.v1. Droit de publication en recette. Accès à l'application consommatrice.";"Manual";"High";"Kafka Alternatif";"US-06";"4";"Consulter le journal du consommateur";"Recherche de 'evt-test-005'";"Le doublon est détecté et ignoré"
+"KAF-006";"[KAF-006] Kafka - Reprise après indisponibilité du consommateur";"Référence : KAF-006
+User Story : US-06
+Nature : Erreur
+Préconditions : Accès au cluster Kafka de recette (outil : Kafka UI, Offset Explorer ou kcat). Consommateur de test abonné au topic crm.account.v1. Possibilité d'arrêter le consommateur en recette.";"Manual";"Medium";"Kafka Erreur";"US-06";"1";"Arrêter le consommateur";"Service consommateur de recette";"Consommateur arrêté, offset courant noté"
+"KAF-006";"[KAF-006] Kafka - Reprise après indisponibilité du consommateur";"Référence : KAF-006
+User Story : US-06
+Nature : Erreur
+Préconditions : Accès au cluster Kafka de recette (outil : Kafka UI, Offset Explorer ou kcat). Consommateur de test abonné au topic crm.account.v1. Possibilité d'arrêter le consommateur en recette.";"Manual";"Medium";"Kafka Erreur";"US-06";"2";"Produire 20 événements";"20 modifications de comptes de test dans Salesforce";"20 messages présents dans le topic, retard du groupe = 20"
+"KAF-006";"[KAF-006] Kafka - Reprise après indisponibilité du consommateur";"Référence : KAF-006
+User Story : US-06
+Nature : Erreur
+Préconditions : Accès au cluster Kafka de recette (outil : Kafka UI, Offset Explorer ou kcat). Consommateur de test abonné au topic crm.account.v1. Possibilité d'arrêter le consommateur en recette.";"Manual";"Medium";"Kafka Erreur";"US-06";"3";"Redémarrer le consommateur";"Service consommateur";"Le consommateur reprend à l'offset noté"
+"KAF-006";"[KAF-006] Kafka - Reprise après indisponibilité du consommateur";"Référence : KAF-006
+User Story : US-06
+Nature : Erreur
+Préconditions : Accès au cluster Kafka de recette (outil : Kafka UI, Offset Explorer ou kcat). Consommateur de test abonné au topic crm.account.v1. Possibilité d'arrêter le consommateur en recette.";"Manual";"Medium";"Kafka Erreur";"US-06";"4";"Vérifier le traitement";"Application aval, retard du groupe de consommateurs";"20 messages traités, retard revenu à 0, aucune perte ni doublon"
+"KAF-007";"[KAF-007] Kafka - Pas de tempête d'événements pendant la reprise";"Référence : KAF-007
+User Story : US-06
+Nature : Alternatif
+Préconditions : Accès au cluster Kafka de recette (outil : Kafka UI, Offset Explorer ou kcat). Consommateur de test abonné au topic crm.account.v1. Lot de reprise de 1 000 comptes prêt.";"Manual";"Medium";"Kafka Alternatif";"US-06";"1";"Noter le dernier offset du topic";"Topic crm.account.v1, toutes partitions";"Offsets de départ notés"
+"KAF-007";"[KAF-007] Kafka - Pas de tempête d'événements pendant la reprise";"Référence : KAF-007
+User Story : US-06
+Nature : Alternatif
+Préconditions : Accès au cluster Kafka de recette (outil : Kafka UI, Offset Explorer ou kcat). Consommateur de test abonné au topic crm.account.v1. Lot de reprise de 1 000 comptes prêt.";"Manual";"Medium";"Kafka Alternatif";"US-06";"2";"Lancer le lot de reprise";"Lot de 1 000 comptes";"Lot terminé avec succès"
+"KAF-007";"[KAF-007] Kafka - Pas de tempête d'événements pendant la reprise";"Référence : KAF-007
+User Story : US-06
+Nature : Alternatif
+Préconditions : Accès au cluster Kafka de recette (outil : Kafka UI, Offset Explorer ou kcat). Consommateur de test abonné au topic crm.account.v1. Lot de reprise de 1 000 comptes prêt.";"Manual";"Medium";"Kafka Alternatif";"US-06";"3";"Observer le topic";"Messages publiés depuis les offsets notés";"Aucun événement publié, ou événements marqués source=migration, selon la spécification"
+"KAF-007";"[KAF-007] Kafka - Pas de tempête d'événements pendant la reprise";"Référence : KAF-007
+User Story : US-06
+Nature : Alternatif
+Préconditions : Accès au cluster Kafka de recette (outil : Kafka UI, Offset Explorer ou kcat). Consommateur de test abonné au topic crm.account.v1. Lot de reprise de 1 000 comptes prêt.";"Manual";"Medium";"Kafka Alternatif";"US-06";"4";"Vérifier l'application aval";"ERP ou application consommatrice";"Aucune création ou mise à jour en masse non voulue"
+"INT-001";"[INT-001] Intégration - Création d'un compte propagée vers l'ERP";"Référence : INT-001
+User Story : US-07
+Nature : Nominal
+Préconditions : Chaîne de recette complète disponible : Salesforce, middleware, Kafka, ERP. Comptes de test sur chaque application.";"Manual";"High";"Integration Nominal";"US-07";"1";"Créer un compte dans Salesforce";"Nom 'TEST INT 001', SIRET 33344455500011, adresse complète";"Compte créé, identifiant noté"
+"INT-001";"[INT-001] Intégration - Création d'un compte propagée vers l'ERP";"Référence : INT-001
+User Story : US-07
+Nature : Nominal
+Préconditions : Chaîne de recette complète disponible : Salesforce, middleware, Kafka, ERP. Comptes de test sur chaque application.";"Manual";"High";"Integration Nominal";"US-07";"2";"Vérifier l'événement Kafka";"Topic crm.account.v1, clé = identifiant du compte";"Message AccountCreated publié"
+"INT-001";"[INT-001] Intégration - Création d'un compte propagée vers l'ERP";"Référence : INT-001
+User Story : US-07
+Nature : Nominal
+Préconditions : Chaîne de recette complète disponible : Salesforce, middleware, Kafka, ERP. Comptes de test sur chaque application.";"Manual";"High";"Integration Nominal";"US-07";"3";"Vérifier le traitement par le middleware";"Journal du middleware, identifiant de corrélation";"Flux traité avec succès, appel à l'ERP en réponse 200"
+"INT-001";"[INT-001] Intégration - Création d'un compte propagée vers l'ERP";"Référence : INT-001
+User Story : US-07
+Nature : Nominal
+Préconditions : Chaîne de recette complète disponible : Salesforce, middleware, Kafka, ERP. Comptes de test sur chaque application.";"Manual";"High";"Integration Nominal";"US-07";"4";"Rechercher le client dans l'ERP";"Recherche par SIRET 33344455500011";"Client présent dans le délai défini"
+"INT-001";"[INT-001] Intégration - Création d'un compte propagée vers l'ERP";"Référence : INT-001
+User Story : US-07
+Nature : Nominal
+Préconditions : Chaîne de recette complète disponible : Salesforce, middleware, Kafka, ERP. Comptes de test sur chaque application.";"Manual";"High";"Integration Nominal";"US-07";"5";"Comparer les données sur toute la chaîne";"Nom, SIRET, adresse dans Salesforce, le message et l'ERP";"Données identiques"
+"INT-002";"[INT-002] Intégration - Retour de l'ERP vers le CRM";"Référence : INT-002
+User Story : US-07
+Nature : Nominal
+Préconditions : Chaîne de recette complète disponible : Salesforce, middleware, Kafka, ERP. Comptes de test sur chaque application. Client synchronisé par INT-001.";"Manual";"High";"Integration Nominal";"US-07";"1";"Mettre à jour l'encours du client dans l'ERP";"Encours = 15 000 EUR";"Modification enregistrée dans l'ERP"
+"INT-002";"[INT-002] Intégration - Retour de l'ERP vers le CRM";"Référence : INT-002
+User Story : US-07
+Nature : Nominal
+Préconditions : Chaîne de recette complète disponible : Salesforce, middleware, Kafka, ERP. Comptes de test sur chaque application. Client synchronisé par INT-001.";"Manual";"High";"Integration Nominal";"US-07";"2";"Vérifier le flux retour";"Journal du middleware";"Flux ERP vers CRM traité avec succès"
+"INT-002";"[INT-002] Intégration - Retour de l'ERP vers le CRM";"Référence : INT-002
+User Story : US-07
+Nature : Nominal
+Préconditions : Chaîne de recette complète disponible : Salesforce, middleware, Kafka, ERP. Comptes de test sur chaque application. Client synchronisé par INT-001.";"Manual";"High";"Integration Nominal";"US-07";"3";"Consulter le compte dans Salesforce";"Compte TEST INT 001, champ Encours";"Encours = 15 000 EUR"
+"INT-002";"[INT-002] Intégration - Retour de l'ERP vers le CRM";"Référence : INT-002
+User Story : US-07
+Nature : Nominal
+Préconditions : Chaîne de recette complète disponible : Salesforce, middleware, Kafka, ERP. Comptes de test sur chaque application. Client synchronisé par INT-001.";"Manual";"High";"Integration Nominal";"US-07";"4";"Vérifier l'absence de boucle";"Topic crm.account.v1 et journal du middleware";"La mise à jour reçue ne redéclenche pas de flux vers l'ERP"
+"INT-003";"[INT-003] Intégration - ERP indisponible";"Référence : INT-003
+User Story : US-07
+Nature : Erreur
+Préconditions : Chaîne de recette complète disponible : Salesforce, middleware, Kafka, ERP. Comptes de test sur chaque application. Possibilité de couper l'ERP ou son point d'accès en recette.";"Manual";"High";"Integration Erreur";"US-07";"1";"Rendre l'ERP indisponible";"Arrêt du service ou blocage du point d'accès";"ERP injoignable"
+"INT-003";"[INT-003] Intégration - ERP indisponible";"Référence : INT-003
+User Story : US-07
+Nature : Erreur
+Préconditions : Chaîne de recette complète disponible : Salesforce, middleware, Kafka, ERP. Comptes de test sur chaque application. Possibilité de couper l'ERP ou son point d'accès en recette.";"Manual";"High";"Integration Erreur";"US-07";"2";"Créer un compte dans Salesforce";"Nom 'TEST INT 003'";"Compte créé sans erreur pour l'utilisateur"
+"INT-003";"[INT-003] Intégration - ERP indisponible";"Référence : INT-003
+User Story : US-07
+Nature : Erreur
+Préconditions : Chaîne de recette complète disponible : Salesforce, middleware, Kafka, ERP. Comptes de test sur chaque application. Possibilité de couper l'ERP ou son point d'accès en recette.";"Manual";"High";"Integration Erreur";"US-07";"3";"Observer le middleware";"Journal et file de reprise";"Nouvelles tentatives selon la politique définie, message conservé"
+"INT-003";"[INT-003] Intégration - ERP indisponible";"Référence : INT-003
+User Story : US-07
+Nature : Erreur
+Préconditions : Chaîne de recette complète disponible : Salesforce, middleware, Kafka, ERP. Comptes de test sur chaque application. Possibilité de couper l'ERP ou son point d'accès en recette.";"Manual";"High";"Integration Erreur";"US-07";"4";"Vérifier l'alerte";"Outil de supervision";"Alerte émise vers l'exploitation"
+"INT-003";"[INT-003] Intégration - ERP indisponible";"Référence : INT-003
+User Story : US-07
+Nature : Erreur
+Préconditions : Chaîne de recette complète disponible : Salesforce, middleware, Kafka, ERP. Comptes de test sur chaque application. Possibilité de couper l'ERP ou son point d'accès en recette.";"Manual";"High";"Integration Erreur";"US-07";"5";"Rétablir l'ERP et attendre le rattrapage";"Redémarrage du service";"Le compte est créé dans l'ERP automatiquement, en un seul exemplaire"
+"INT-004";"[INT-004] Intégration - Période de coexistence Siebel / Salesforce";"Référence : INT-004
+User Story : US-07
+Nature : Alternatif
+Préconditions : Chaîne de recette complète disponible : Salesforce, middleware, Kafka, ERP. Comptes de test sur chaque application. Siebel de recette encore actif. Règle d'application maître par objet spécifiée.";"Manual";"High";"Integration Alternatif";"US-07";"1";"Modifier un client dans Salesforce";"Téléphone = 0200000001";"Modification enregistrée"
+"INT-004";"[INT-004] Intégration - Période de coexistence Siebel / Salesforce";"Référence : INT-004
+User Story : US-07
+Nature : Alternatif
+Préconditions : Chaîne de recette complète disponible : Salesforce, middleware, Kafka, ERP. Comptes de test sur chaque application. Siebel de recette encore actif. Règle d'application maître par objet spécifiée.";"Manual";"High";"Integration Alternatif";"US-07";"2";"Vérifier la synchronisation vers Siebel";"Fiche du même client dans Siebel";"Téléphone mis à jour dans Siebel"
+"INT-004";"[INT-004] Intégration - Période de coexistence Siebel / Salesforce";"Référence : INT-004
+User Story : US-07
+Nature : Alternatif
+Préconditions : Chaîne de recette complète disponible : Salesforce, middleware, Kafka, ERP. Comptes de test sur chaque application. Siebel de recette encore actif. Règle d'application maître par objet spécifiée.";"Manual";"High";"Integration Alternatif";"US-07";"3";"Modifier le même client dans Siebel";"Téléphone = 0200000002";"Comportement conforme à la règle d'application maître (propagation ou refus)"
+"INT-004";"[INT-004] Intégration - Période de coexistence Siebel / Salesforce";"Référence : INT-004
+User Story : US-07
+Nature : Alternatif
+Préconditions : Chaîne de recette complète disponible : Salesforce, middleware, Kafka, ERP. Comptes de test sur chaque application. Siebel de recette encore actif. Règle d'application maître par objet spécifiée.";"Manual";"High";"Integration Alternatif";"US-07";"4";"Vérifier l'absence de boucle de synchronisation";"Journal du middleware sur 10 minutes";"Pas d'échanges répétés entre les deux systèmes"
+"INT-004";"[INT-004] Intégration - Période de coexistence Siebel / Salesforce";"Référence : INT-004
+User Story : US-07
+Nature : Alternatif
+Préconditions : Chaîne de recette complète disponible : Salesforce, middleware, Kafka, ERP. Comptes de test sur chaque application. Siebel de recette encore actif. Règle d'application maître par objet spécifiée.";"Manual";"High";"Integration Alternatif";"US-07";"5";"Comparer l'état final";"Fiche client dans les deux systèmes";"Valeur identique des deux côtés"
+"INT-005";"[INT-005] Intégration - Parcours métier complet prospect à commande";"Référence : INT-005
+User Story : US-03
+Nature : Nominal
+Préconditions : Chaîne de recette complète disponible : Salesforce, middleware, Kafka, ERP. Comptes de test sur chaque application. Utilisateur commercial de test. Catalogue produits chargé.";"Manual";"High";"Integration Nominal";"US-03";"1";"Créer un prospect et le convertir en compte";"Prospect 'TEST PARCOURS 001'";"Compte et contact créés"
+"INT-005";"[INT-005] Intégration - Parcours métier complet prospect à commande";"Référence : INT-005
+User Story : US-03
+Nature : Nominal
+Préconditions : Chaîne de recette complète disponible : Salesforce, middleware, Kafka, ERP. Comptes de test sur chaque application. Utilisateur commercial de test. Catalogue produits chargé.";"Manual";"High";"Integration Nominal";"US-03";"2";"Créer une opportunité sur le compte";"Montant 50 000 EUR, étape 'Qualification'";"Opportunité créée"
+"INT-005";"[INT-005] Intégration - Parcours métier complet prospect à commande";"Référence : INT-005
+User Story : US-03
+Nature : Nominal
+Préconditions : Chaîne de recette complète disponible : Salesforce, middleware, Kafka, ERP. Comptes de test sur chaque application. Utilisateur commercial de test. Catalogue produits chargé.";"Manual";"High";"Integration Nominal";"US-03";"3";"Créer un devis et le faire valider";"2 lignes de produits";"Devis validé, montant correct"
+"INT-005";"[INT-005] Intégration - Parcours métier complet prospect à commande";"Référence : INT-005
+User Story : US-03
+Nature : Nominal
+Préconditions : Chaîne de recette complète disponible : Salesforce, middleware, Kafka, ERP. Comptes de test sur chaque application. Utilisateur commercial de test. Catalogue produits chargé.";"Manual";"High";"Integration Nominal";"US-03";"4";"Passer l'opportunité à l'étape gagnée et générer la commande";"Étape 'Gagnée'";"Commande créée"
+"INT-005";"[INT-005] Intégration - Parcours métier complet prospect à commande";"Référence : INT-005
+User Story : US-03
+Nature : Nominal
+Préconditions : Chaîne de recette complète disponible : Salesforce, middleware, Kafka, ERP. Comptes de test sur chaque application. Utilisateur commercial de test. Catalogue produits chargé.";"Manual";"High";"Integration Nominal";"US-03";"5";"Vérifier les flux aval";"Topic Kafka, middleware, ERP";"Commande présente dans l'ERP avec le bon client et le bon montant"
+"INT-005";"[INT-005] Intégration - Parcours métier complet prospect à commande";"Référence : INT-005
+User Story : US-03
+Nature : Nominal
+Préconditions : Chaîne de recette complète disponible : Salesforce, middleware, Kafka, ERP. Comptes de test sur chaque application. Utilisateur commercial de test. Catalogue produits chargé.";"Manual";"High";"Integration Nominal";"US-03";"6";"Comparer avec le parcours Siebel de référence";"Parcours de référence documenté";"Résultat métier équivalent"
+"DEC-001";"[DEC-001] Décommissionnement - Siebel en lecture seule après bascule";"Référence : DEC-001
+User Story : US-08
+Nature : Nominal
+Préconditions : Bascule réalisée sur l'environnement de répétition (ou de production pour DEC-005). Compte utilisateur Siebel standard disponible.";"Manual";"High";"Decommissionnement Nominal";"US-08";"1";"Se connecter à Siebel avec un utilisateur standard";"Utilisateur commercial";"Connexion réussie"
+"DEC-001";"[DEC-001] Décommissionnement - Siebel en lecture seule après bascule";"Référence : DEC-001
+User Story : US-08
+Nature : Nominal
+Préconditions : Bascule réalisée sur l'environnement de répétition (ou de production pour DEC-005). Compte utilisateur Siebel standard disponible.";"Manual";"High";"Decommissionnement Nominal";"US-08";"2";"Consulter un compte existant";"Compte connu";"Consultation possible"
+"DEC-001";"[DEC-001] Décommissionnement - Siebel en lecture seule après bascule";"Référence : DEC-001
+User Story : US-08
+Nature : Nominal
+Préconditions : Bascule réalisée sur l'environnement de répétition (ou de production pour DEC-005). Compte utilisateur Siebel standard disponible.";"Manual";"High";"Decommissionnement Nominal";"US-08";"3";"Tenter de créer un compte";"Nom 'TEST DEC 001'";"Création refusée"
+"DEC-001";"[DEC-001] Décommissionnement - Siebel en lecture seule après bascule";"Référence : DEC-001
+User Story : US-08
+Nature : Nominal
+Préconditions : Bascule réalisée sur l'environnement de répétition (ou de production pour DEC-005). Compte utilisateur Siebel standard disponible.";"Manual";"High";"Decommissionnement Nominal";"US-08";"4";"Tenter de modifier un compte existant";"Changement du téléphone";"Modification refusée"
+"DEC-001";"[DEC-001] Décommissionnement - Siebel en lecture seule après bascule";"Référence : DEC-001
+User Story : US-08
+Nature : Nominal
+Préconditions : Bascule réalisée sur l'environnement de répétition (ou de production pour DEC-005). Compte utilisateur Siebel standard disponible.";"Manual";"High";"Decommissionnement Nominal";"US-08";"5";"Vérifier en base l'absence d'écriture";"SELECT COUNT(*) FROM SIEBEL.S_ORG_EXT WHERE LAST_UPD > :dateBascule";"0 ligne"
+"DEC-002";"[DEC-002] Décommissionnement - Flux entrants Siebel coupés";"Référence : DEC-002
+User Story : US-08
+Nature : Nominal
+Préconditions : Bascule réalisée sur l'environnement de répétition (ou de production pour DEC-005). Compte utilisateur Siebel standard disponible. Inventaire des flux entrants et sortants de Siebel.";"Manual";"High";"Decommissionnement Nominal";"US-08";"1";"Parcourir l'inventaire des flux";"Liste des interfaces : services web, files, traitements planifiés";"Chaque flux a un statut cible (coupé ou redirigé)"
+"DEC-002";"[DEC-002] Décommissionnement - Flux entrants Siebel coupés";"Référence : DEC-002
+User Story : US-08
+Nature : Nominal
+Préconditions : Bascule réalisée sur l'environnement de répétition (ou de production pour DEC-005). Compte utilisateur Siebel standard disponible. Inventaire des flux entrants et sortants de Siebel.";"Manual";"High";"Decommissionnement Nominal";"US-08";"2";"Vérifier les traitements planifiés Siebel";"Ordonnanceur";"Traitements désactivés"
+"DEC-002";"[DEC-002] Décommissionnement - Flux entrants Siebel coupés";"Référence : DEC-002
+User Story : US-08
+Nature : Nominal
+Préconditions : Bascule réalisée sur l'environnement de répétition (ou de production pour DEC-005). Compte utilisateur Siebel standard disponible. Inventaire des flux entrants et sortants de Siebel.";"Manual";"High";"Decommissionnement Nominal";"US-08";"3";"Appeler un ancien service web Siebel";"Requête d'un consommateur historique sur l'ancienne adresse";"Appel refusé ou redirigé vers la nouvelle façade"
+"DEC-002";"[DEC-002] Décommissionnement - Flux entrants Siebel coupés";"Référence : DEC-002
+User Story : US-08
+Nature : Nominal
+Préconditions : Bascule réalisée sur l'environnement de répétition (ou de production pour DEC-005). Compte utilisateur Siebel standard disponible. Inventaire des flux entrants et sortants de Siebel.";"Manual";"High";"Decommissionnement Nominal";"US-08";"4";"Vérifier la configuration des applications appelantes";"Adresses configurées chez chaque consommateur";"Toutes pointent vers la cible"
+"DEC-002";"[DEC-002] Décommissionnement - Flux entrants Siebel coupés";"Référence : DEC-002
+User Story : US-08
+Nature : Nominal
+Préconditions : Bascule réalisée sur l'environnement de répétition (ou de production pour DEC-005). Compte utilisateur Siebel standard disponible. Inventaire des flux entrants et sortants de Siebel.";"Manual";"High";"Decommissionnement Nominal";"US-08";"5";"Surveiller les journaux d'accès Siebel";"24 heures d'observation";"Aucun appel applicatif entrant"
+"DEC-003";"[DEC-003] Décommissionnement - Répétition du retour arrière";"Référence : DEC-003
+User Story : US-08
+Nature : Alternatif
+Préconditions : Bascule réalisée sur l'environnement de répétition (ou de production pour DEC-005). Compte utilisateur Siebel standard disponible. Procédure de retour arrière rédigée. Données saisies dans Salesforce depuis la bascule.";"Manual";"High";"Decommissionnement Alternatif";"US-08";"1";"Noter l'état des données avant retour arrière";"Comptages par objet dans Salesforce et Siebel";"État de référence noté"
+"DEC-003";"[DEC-003] Décommissionnement - Répétition du retour arrière";"Référence : DEC-003
+User Story : US-08
+Nature : Alternatif
+Préconditions : Bascule réalisée sur l'environnement de répétition (ou de production pour DEC-005). Compte utilisateur Siebel standard disponible. Procédure de retour arrière rédigée. Données saisies dans Salesforce depuis la bascule.";"Manual";"High";"Decommissionnement Alternatif";"US-08";"2";"Dérouler la procédure de retour arrière";"Procédure pas à pas, chronométrée";"Toutes les étapes s'exécutent sans blocage"
+"DEC-003";"[DEC-003] Décommissionnement - Répétition du retour arrière";"Référence : DEC-003
+User Story : US-08
+Nature : Alternatif
+Préconditions : Bascule réalisée sur l'environnement de répétition (ou de production pour DEC-005). Compte utilisateur Siebel standard disponible. Procédure de retour arrière rédigée. Données saisies dans Salesforce depuis la bascule.";"Manual";"High";"Decommissionnement Alternatif";"US-08";"3";"Vérifier que Siebel est de nouveau accessible en écriture";"Création d'un compte de test";"Création réussie"
+"DEC-003";"[DEC-003] Décommissionnement - Répétition du retour arrière";"Référence : DEC-003
+User Story : US-08
+Nature : Alternatif
+Préconditions : Bascule réalisée sur l'environnement de répétition (ou de production pour DEC-005). Compte utilisateur Siebel standard disponible. Procédure de retour arrière rédigée. Données saisies dans Salesforce depuis la bascule.";"Manual";"High";"Decommissionnement Alternatif";"US-08";"4";"Vérifier la réactivation des flux Siebel";"Inventaire des flux";"Flux réactivés et fonctionnels"
+"DEC-003";"[DEC-003] Décommissionnement - Répétition du retour arrière";"Référence : DEC-003
+User Story : US-08
+Nature : Alternatif
+Préconditions : Bascule réalisée sur l'environnement de répétition (ou de production pour DEC-005). Compte utilisateur Siebel standard disponible. Procédure de retour arrière rédigée. Données saisies dans Salesforce depuis la bascule.";"Manual";"High";"Decommissionnement Alternatif";"US-08";"5";"Vérifier le sort des données saisies dans Salesforce depuis la bascule";"Comptes créés après la bascule";"Données réinjectées ou listées pour ressaisie selon la procédure, aucune perte"
+"DEC-003";"[DEC-003] Décommissionnement - Répétition du retour arrière";"Référence : DEC-003
+User Story : US-08
+Nature : Alternatif
+Préconditions : Bascule réalisée sur l'environnement de répétition (ou de production pour DEC-005). Compte utilisateur Siebel standard disponible. Procédure de retour arrière rédigée. Données saisies dans Salesforce depuis la bascule.";"Manual";"High";"Decommissionnement Alternatif";"US-08";"6";"Comparer la durée avec le délai prévu";"Chronométrage";"Durée inférieure au délai maximal prévu"
+"DEC-004";"[DEC-004] Décommissionnement - Archivage des données non migrées";"Référence : DEC-004
+User Story : US-08
+Nature : Nominal
+Préconditions : Bascule réalisée sur l'environnement de répétition (ou de production pour DEC-005). Compte utilisateur Siebel standard disponible. Solution d'archivage alimentée. Utilisateur habilité à l'archive.";"Manual";"Medium";"Decommissionnement Nominal";"US-08";"1";"Identifier un compte exclu de la reprise";"Compte du rapport d'exclusion (voir MIG-004)";"ROW_ID noté"
+"DEC-004";"[DEC-004] Décommissionnement - Archivage des données non migrées";"Référence : DEC-004
+User Story : US-08
+Nature : Nominal
+Préconditions : Bascule réalisée sur l'environnement de répétition (ou de production pour DEC-005). Compte utilisateur Siebel standard disponible. Solution d'archivage alimentée. Utilisateur habilité à l'archive.";"Manual";"Medium";"Decommissionnement Nominal";"US-08";"2";"Rechercher ce compte dans l'archive";"Recherche par ROW_ID ou par nom";"Compte retrouvé"
+"DEC-004";"[DEC-004] Décommissionnement - Archivage des données non migrées";"Référence : DEC-004
+User Story : US-08
+Nature : Nominal
+Préconditions : Bascule réalisée sur l'environnement de répétition (ou de production pour DEC-005). Compte utilisateur Siebel standard disponible. Solution d'archivage alimentée. Utilisateur habilité à l'archive.";"Manual";"Medium";"Decommissionnement Nominal";"US-08";"3";"Contrôler le contenu archivé";"Données du compte, contacts, historique";"Données complètes et lisibles"
+"DEC-004";"[DEC-004] Décommissionnement - Archivage des données non migrées";"Référence : DEC-004
+User Story : US-08
+Nature : Nominal
+Préconditions : Bascule réalisée sur l'environnement de répétition (ou de production pour DEC-005). Compte utilisateur Siebel standard disponible. Solution d'archivage alimentée. Utilisateur habilité à l'archive.";"Manual";"Medium";"Decommissionnement Nominal";"US-08";"4";"Tenter l'accès avec un utilisateur non habilité";"Utilisateur standard";"Accès refusé"
+"DEC-004";"[DEC-004] Décommissionnement - Archivage des données non migrées";"Référence : DEC-004
+User Story : US-08
+Nature : Nominal
+Préconditions : Bascule réalisée sur l'environnement de répétition (ou de production pour DEC-005). Compte utilisateur Siebel standard disponible. Solution d'archivage alimentée. Utilisateur habilité à l'archive.";"Manual";"Medium";"Decommissionnement Nominal";"US-08";"5";"Vérifier la règle de conservation";"Paramétrage de purge de l'archive";"Durée conforme à la politique RGPD"
+"DEC-005";"[DEC-005] Décommissionnement - Bilan post-bascule en production";"Référence : DEC-005
+User Story : US-08
+Nature : Nominal
+Préconditions : Bascule réalisée sur l'environnement de répétition (ou de production pour DEC-005). Compte utilisateur Siebel standard disponible. Bascule de production terminée. Accès en lecture à la production.";"Manual";"High";"Decommissionnement Nominal";"US-08";"1";"Rejouer le contrôle de volumétrie";"Requêtes de MIG-001 sur tous les objets";"Écart inexpliqué = 0 pour chaque objet"
+"DEC-005";"[DEC-005] Décommissionnement - Bilan post-bascule en production";"Référence : DEC-005
+User Story : US-08
+Nature : Nominal
+Préconditions : Bascule réalisée sur l'environnement de répétition (ou de production pour DEC-005). Compte utilisateur Siebel standard disponible. Bascule de production terminée. Accès en lecture à la production.";"Manual";"High";"Decommissionnement Nominal";"US-08";"2";"Rejouer le contrôle des montants";"Requêtes de MIG-010";"Totaux identiques par devise et par étape"
+"DEC-005";"[DEC-005] Décommissionnement - Bilan post-bascule en production";"Référence : DEC-005
+User Story : US-08
+Nature : Nominal
+Préconditions : Bascule réalisée sur l'environnement de répétition (ou de production pour DEC-005). Compte utilisateur Siebel standard disponible. Bascule de production terminée. Accès en lecture à la production.";"Manual";"High";"Decommissionnement Nominal";"US-08";"3";"Vérifier un flux de bout en bout sur un cas réel";"Première création de compte réelle (voir INT-001)";"Compte présent dans l'ERP"
+"DEC-005";"[DEC-005] Décommissionnement - Bilan post-bascule en production";"Référence : DEC-005
+User Story : US-08
+Nature : Nominal
+Préconditions : Bascule réalisée sur l'environnement de répétition (ou de production pour DEC-005). Compte utilisateur Siebel standard disponible. Bascule de production terminée. Accès en lecture à la production.";"Manual";"High";"Decommissionnement Nominal";"US-08";"4";"Recenser les anomalies ouvertes";"Filtre JIRA des anomalies de la recette";"Aucune anomalie bloquante ou majeure ouverte"
+"DEC-005";"[DEC-005] Décommissionnement - Bilan post-bascule en production";"Référence : DEC-005
+User Story : US-08
+Nature : Nominal
+Préconditions : Bascule réalisée sur l'environnement de répétition (ou de production pour DEC-005). Compte utilisateur Siebel standard disponible. Bascule de production terminée. Accès en lecture à la production.";"Manual";"High";"Decommissionnement Nominal";"US-08";"5";"Rédiger le bilan et présenter le PV de validation";"Indicateurs : couverture, taux de réussite, anomalies";"PV signé par le métier"

@@ -1,0 +1,604 @@
+{
+ "info": {
+  "_postman_id": "bca89f0b-61c1-4757-806a-79148455b047",
+  "name": "Recette migration CRM - API comptes",
+  "description": "Cas de tests API-001 à API-010 (API-009 exclu : pas de consommateur SOAP historique dans l'environnement simulé). Lancer le dossier 0 en premier, ou toute la collection dans le Runner.",
+  "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+ },
+ "item": [
+  {
+   "name": "0 - Authentification",
+   "item": [
+    {
+     "name": "Jeton OAuth (client-rw)",
+     "request": {
+      "method": "POST",
+      "header": [],
+      "url": "{{baseUrl}}/oauth/token",
+      "body": {
+       "mode": "urlencoded",
+       "urlencoded": [
+        {
+         "key": "grant_type",
+         "value": "client_credentials"
+        },
+        {
+         "key": "client_id",
+         "value": "client-rw"
+        },
+        {
+         "key": "client_secret",
+         "value": "secret-rw"
+        }
+       ]
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"Code HTTP 200\", () => pm.response.to.have.status(200));",
+         "pm.collectionVariables.set(\"token\", pm.response.json().access_token);"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Jeton OAuth (client-ro)",
+     "request": {
+      "method": "POST",
+      "header": [],
+      "url": "{{baseUrl}}/oauth/token",
+      "body": {
+       "mode": "urlencoded",
+       "urlencoded": [
+        {
+         "key": "grant_type",
+         "value": "client_credentials"
+        },
+        {
+         "key": "client_id",
+         "value": "client-ro"
+        },
+        {
+         "key": "client_secret",
+         "value": "secret-ro"
+        }
+       ]
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"Code HTTP 200\", () => pm.response.to.have.status(200));",
+         "pm.collectionVariables.set(\"tokenRO\", pm.response.json().access_token);"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "API-001 Création d'un compte",
+   "item": [
+    {
+     "name": "POST /accounts",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Authorization",
+        "value": "Bearer {{token}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": "{{baseUrl}}/accounts",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"name\": \"TEST API 001\",\n  \"siret\": \"{{siret}}\",\n  \"street\": \"1 rue de la Paix\",\n  \"city\": \"Paris\",\n  \"postalCode\": \"75002\",\n  \"segment\": \"PME\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "prerequest",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.collectionVariables.set(\"siret\", String(Date.now()).padStart(14, \"1\").slice(-14));"
+        ]
+       }
+      },
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"Code HTTP 201\", () => pm.response.to.have.status(201));",
+         "const b = pm.response.json();",
+         "pm.test(\"Identifiant au format attendu\", () => pm.expect(b.id).to.match(/^001[A-Za-z0-9]{15}$/));",
+         "pm.test(\"Valeurs identiques à la requête\", () => { pm.expect(b.name).to.eql(\"TEST API 001\"); pm.expect(b.siret).to.eql(pm.collectionVariables.get(\"siret\")); pm.expect(b.segment).to.eql(\"PME\"); });",
+         "pm.collectionVariables.set(\"accountId\", b.id);"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "API-002 Consultation",
+   "item": [
+    {
+     "name": "GET /accounts/{id}",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Authorization",
+        "value": "Bearer {{token}}"
+       }
+      ],
+      "url": "{{baseUrl}}/accounts/{{accountId}}"
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"Code HTTP 200\", () => pm.response.to.have.status(200));",
+         "const schema = { type: \"object\", required: [\"id\", \"name\", \"siret\", \"city\", \"postalCode\", \"status\"],",
+         "  properties: { id: { type: \"string\" }, name: { type: \"string\" }, siret: { type: [\"string\", \"null\"] }, status: { type: \"string\" } } };",
+         "pm.test(\"Schéma conforme au contrat\", () => pm.response.to.have.jsonSchema(schema));",
+         "pm.test(\"Content-Type JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "API-003 Mise à jour partielle",
+   "item": [
+    {
+     "name": "PATCH /accounts/{id}",
+     "request": {
+      "method": "PATCH",
+      "header": [
+       {
+        "key": "Authorization",
+        "value": "Bearer {{token}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": "{{baseUrl}}/accounts/{{accountId}}",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"city\": \"Lyon\",\n  \"postalCode\": \"69003\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"Code HTTP 200\", () => pm.response.to.have.status(200));",
+         "const b = pm.response.json();",
+         "pm.test(\"Adresse modifiée\", () => { pm.expect(b.city).to.eql(\"Lyon\"); pm.expect(b.postalCode).to.eql(\"69003\"); });",
+         "pm.test(\"Autres champs inchangés\", () => { pm.expect(b.name).to.eql(\"TEST API 001\"); pm.expect(b.siret).to.eql(pm.collectionVariables.get(\"siret\")); pm.expect(b.segment).to.eql(\"PME\"); });"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "API-004 Champ obligatoire absent",
+   "item": [
+    {
+     "name": "POST /accounts sans name",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Authorization",
+        "value": "Bearer {{token}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": "{{baseUrl}}/accounts",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"siret\": \"11122233300029\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"Code HTTP 400\", () => pm.response.to.have.status(400));",
+         "pm.test(\"Corps d'erreur normalisé\", () => { const b = pm.response.json(); pm.expect(b).to.have.property(\"code\"); pm.expect(b).to.have.property(\"message\"); });",
+         "pm.test(\"Le champ name est désigné\", () => pm.expect(pm.response.json().field).to.eql(\"name\"));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Vérification : aucun compte créé",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Authorization",
+        "value": "Bearer {{token}}"
+       }
+      ],
+      "url": "{{baseUrl}}/accounts?siret=11122233300029"
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"Code HTTP 200\", () => pm.response.to.have.status(200));",
+         "pm.test(\"Aucun compte\", () => pm.expect(pm.response.json()).to.have.length(0));"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "API-005 Jeton absent ou expiré",
+   "item": [
+    {
+     "name": "Sans jeton",
+     "request": {
+      "method": "GET",
+      "header": [],
+      "url": "{{baseUrl}}/accounts/{{accountId}}"
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"Code HTTP 401\", () => pm.response.to.have.status(401));",
+         "pm.test(\"Corps d'erreur normalisé\", () => { const b = pm.response.json(); pm.expect(b).to.have.property(\"code\"); pm.expect(b).to.have.property(\"message\"); });"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Jeton expiré",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Authorization",
+        "value": "Bearer {{expiredToken}}"
+       }
+      ],
+      "url": "{{baseUrl}}/accounts/{{accountId}}"
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"Code HTTP 401\", () => pm.response.to.have.status(401));",
+         "pm.test(\"Corps d'erreur normalisé\", () => { const b = pm.response.json(); pm.expect(b).to.have.property(\"code\"); pm.expect(b).to.have.property(\"message\"); });"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Jeton malformé",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Authorization",
+        "value": "Bearer abc123"
+       }
+      ],
+      "url": "{{baseUrl}}/accounts/{{accountId}}"
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"Code HTTP 401\", () => pm.response.to.have.status(401));",
+         "pm.test(\"Aucune donnée exposée\", () => pm.expect(pm.response.json()).to.not.have.property(\"name\"));"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "API-006 Profil lecture seule",
+   "item": [
+    {
+     "name": "POST refusé",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Authorization",
+        "value": "Bearer {{tokenRO}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": "{{baseUrl}}/accounts",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"name\": \"TEST API 006\",\n  \"siret\": \"11122233300037\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"Code HTTP 403\", () => pm.response.to.have.status(403));",
+         "pm.test(\"Corps d'erreur normalisé\", () => { const b = pm.response.json(); pm.expect(b).to.have.property(\"code\"); pm.expect(b).to.have.property(\"message\"); });"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Vérification : aucun compte créé",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Authorization",
+        "value": "Bearer {{token}}"
+       }
+      ],
+      "url": "{{baseUrl}}/accounts?siret=11122233300037"
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"Code HTTP 200\", () => pm.response.to.have.status(200));",
+         "pm.test(\"Aucun compte\", () => pm.expect(pm.response.json()).to.have.length(0));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "GET autorisé",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Authorization",
+        "value": "Bearer {{tokenRO}}"
+       }
+      ],
+      "url": "{{baseUrl}}/accounts/{{accountId}}"
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"Code HTTP 200\", () => pm.response.to.have.status(200));"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "API-007 Ressource inexistante",
+   "item": [
+    {
+     "name": "Identifiant inconnu",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Authorization",
+        "value": "Bearer {{token}}"
+       }
+      ],
+      "url": "{{baseUrl}}/accounts/001000000000000AAA"
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"Code HTTP 404\", () => pm.response.to.have.status(404));",
+         "pm.test(\"Corps d'erreur normalisé\", () => { const b = pm.response.json(); pm.expect(b).to.have.property(\"code\"); pm.expect(b).to.have.property(\"message\"); });"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Identifiant mal formé",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Authorization",
+        "value": "Bearer {{token}}"
+       }
+      ],
+      "url": "{{baseUrl}}/accounts/XYZ"
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"Code HTTP 400\", () => pm.response.to.have.status(400));",
+         "pm.test(\"Corps d'erreur normalisé\", () => { const b = pm.response.json(); pm.expect(b).to.have.property(\"code\"); pm.expect(b).to.have.property(\"message\"); });"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "API-008 Doublon de SIRET",
+   "item": [
+    {
+     "name": "POST avec SIRET existant",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Authorization",
+        "value": "Bearer {{token}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": "{{baseUrl}}/accounts",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"name\": \"TEST API DOUBLON\",\n  \"siret\": \"{{siret}}\"\n}"
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"Code HTTP 409\", () => pm.response.to.have.status(409));",
+         "pm.test(\"Le compte existant est référencé\", () => pm.expect(pm.response.json().existingId).to.eql(pm.collectionVariables.get(\"accountId\")));"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "Vérification : un seul compte",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Authorization",
+        "value": "Bearer {{token}}"
+       }
+      ],
+      "url": "{{baseUrl}}/accounts?siret={{siret}}"
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"Code HTTP 200\", () => pm.response.to.have.status(200));",
+         "pm.test(\"Un seul compte\", () => pm.expect(pm.response.json()).to.have.length(1));"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "API-010 Temps de réponse",
+   "item": [
+    {
+     "name": "GET /accounts/{id}",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Authorization",
+        "value": "Bearer {{token}}"
+       }
+      ],
+      "url": "{{baseUrl}}/accounts/{{accountId}}"
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.test(\"Code HTTP 200\", () => pm.response.to.have.status(200));",
+         "pm.test(\"Temps de réponse < 800 ms\", () => pm.expect(pm.response.responseTime).to.be.below(800));"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "variable": [
+  {
+   "key": "token",
+   "value": ""
+  },
+  {
+   "key": "tokenRO",
+   "value": ""
+  },
+  {
+   "key": "accountId",
+   "value": ""
+  },
+  {
+   "key": "siret",
+   "value": ""
+  }
+ ]
+}
